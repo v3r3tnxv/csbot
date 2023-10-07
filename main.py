@@ -65,7 +65,7 @@ def get_answer_by_intent(intent):
     if intent in BOT_CONFIG["intents"]:
         responses = BOT_CONFIG["intents"][intent]["responses"]
         if responses:
-            return random.choice(responses)
+            return responses[0]
 
 
 with open("../csbot/source/dialogues.txt", encoding="utf-8") as f:
@@ -174,7 +174,6 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 
 def run_bot(update: Update, context: CallbackContext) -> None:
-    # Используйте Natasha для анализа текста replica
     segmenter = Segmenter()
     morph_vocab = MorphVocab()
 

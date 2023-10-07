@@ -80,7 +80,7 @@ street_data = [
     (4, 'ул. Ленина', 4)
 ]
 with con:
-    con.executemany("INSERT INTO street (id_street, name_district, id_district) VALUES (?, ?, ?)", street_data)
+    con.executemany("INSERT INTO street (id_street, name_street, id_district) VALUES (?, ?, ?)", street_data)
 with con:
     data = con.execute("SELECT * FROM street")
     for row in data:
@@ -92,7 +92,7 @@ location_data = [
     (3, 3, 3)
 ]
 with con:
-    con.executemany("INSERT INTO location (id_location, id_street, id_outage) VALUES (?, ?, ?)", location_data)
+    con.executemany("INSERT INTO location (id_record, id_street, id_outage) VALUES (?, ?, ?)", location_data)
 with con:
     data = con.execute("SELECT * FROM location")
     for row in data:
@@ -100,8 +100,8 @@ with con:
 
 outage_data = [
     (1, '10.10.2023', '12.12.2050', 'ТРУБУ ПОРВАЛО НА ЧАСТИ', 1),
-    (2, '11.11.2024', '11.11.2040' 'Упало дерево на линию электропередачь', 2),
-    (3, '12.12.2024', '10.10.2030' 'Плановые работы', 3)
+    (2, '11.11.2024', '11.11.2040', 'Упало дерево на линию электропередачь', 2),
+    (3, '12.12.2024', '10.10.2030', 'Плановые работы', 3)
 ]
 with con:
     con.executemany("INSERT INTO outage (id_outage, date_start, date_end, note_outage, id_resource) VALUES (?, ?, ?, ?, ?)", outage_data)
@@ -111,9 +111,9 @@ with con:
         print(row)
 
 resource_data = [
-    (1, '7 918 244 48 03', '12.12.2050', 'Вода', 1),
-    (2, '7 918 244 48 03', '11.11.2040' 'Электричество', 2),
-    (3, '7 918 244 48 03', '10.10.2030' 'Газ', 3)
+    (1, '7 918 244 48 03', 'Вода'),
+    (2, '7 918 244 48 03', 'Электричество'),
+    (3, '7 918 244 48 03', 'Газ')
 ]
 with con:
     con.executemany("INSERT INTO resource (id_resource, supplier_contacts, type_resource) VALUES (?, ?, ?)", resource_data)
