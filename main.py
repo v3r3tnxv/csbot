@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
 import random
 import nltk
 from sklearn.svm import LinearSVC
@@ -91,7 +89,7 @@ for dialogue in dialogues:
         questions.add(question)
         dialogues_filtered.append([question, answer])
 
-dialogues_structured = {}  #  {'word': [['...word...', 'answer'], ...], ...}
+dialogues_structured = {}
 
 for question, answer in dialogues_filtered:
     words = set(question.split(" "))
@@ -105,9 +103,6 @@ for word, pairs in dialogues_structured.items():
     pairs.sort(key=lambda pair: len(pair[0]))
     dialogues_structured_cut[word] = pairs[:1000]
 
-# replica -> word1, word2, word3, ... -> dialogues_structured[word1] + dialogues_structured[word2] + ... -> mini_dataset
-
-
 def generate_answer(replica):
     replica = clear_phrase(replica)
     words = set(replica.split(" "))
@@ -116,9 +111,7 @@ def generate_answer(replica):
         if word in dialogues_structured_cut:
             mini_dataset += dialogues_structured_cut[word]
 
-    # TODO убрать повторы из mini_dataset
-
-    answers = []  # [[distance_weighted, question, answer]]
+    answers = []
 
     for question, answer in mini_dataset:
         if abs(len(replica) - len(question)) / len(question) < 0.2:
@@ -143,22 +136,17 @@ def bot(replica):
     # NLU
     intent = classify_intent(replica)
 
-    # Answer generation
-
-    # выбор заготовленной реплики
     if intent:
         answer = get_answer_by_intent(intent)
         if answer:
             stats["intent"] += 1
             return answer
 
-    # вызов генеративной модели
     answer = generate_answer(replica)
     if answer:
         stats["generate"] += 1
         return answer
 
-    # берем заглушку
     stats["failure"] += 1
     return get_failure_phrase()
 
@@ -197,25 +185,21 @@ def run_bot(update: Update, context: CallbackContext) -> None:
 
     names_extractor = NamesExtractor(morph_vocab)
 
-    # Создаем объект Doc для анализа текста
     replica = update.message.text
     doc = Doc(replica)
 
-    # Применяем сегментацию
     doc.segment(segmenter)
     print("Токены:")
     print(doc.tokens[:5])
     print("Предложения:")
     print(doc.sents[:5])
 
-    # Применяем морфологический анализ
     doc.tag_morph(morph_tagger)
     print("\nТокены после морфологического анализа:")
     print(doc.tokens[:5])
     print("\nМорфологический анализ первого предложения:")
     doc.sents[0].morph.print()
 
-    # Применяем лемматизацию
     for token in doc.tokens:
         token.lemmatize(morph_vocab)
     print("\nТокены после лемматизации:")
@@ -223,7 +207,6 @@ def run_bot(update: Update, context: CallbackContext) -> None:
     print("\nСловарь лемм:")
     {_.text: _.lemma for _ in doc.tokens}
 
-    # Применяем синтаксический анализ
     doc.parse_syntax(syntax_parser)
     print("\nТокены после синтаксического анализа:")
     print(doc.tokens[:5])
@@ -238,14 +221,12 @@ def run_bot(update: Update, context: CallbackContext) -> None:
         print("Недостаточно слов для синтаксического анализа.")
         print()
 
-    # Применяем НЭР
     doc.tag_ner(ner_tagger)
     print("\nСущности:")
     print(doc.spans[:5])
     print("\nНЭР:")
     doc.ner.print()
 
-    # Применяем нормализацию именнованного объекта
     for span in doc.spans:
         span.normalize(morph_vocab)
         print("\nСущности после нормализации:")
@@ -253,7 +234,6 @@ def run_bot(update: Update, context: CallbackContext) -> None:
         print("\nСловарь нормализованных сущностей:")
         {_.text: _.normal for _ in doc.spans if _.text != _.normal}
 
-    # Применяем разбор именнованного объекта
     for span in doc.spans:
         if span.type == PER:
             span.extract_fact(names_extractor)
@@ -263,7 +243,6 @@ def run_bot(update: Update, context: CallbackContext) -> None:
     print("\nСловарь фактов:")
     {_.normal: _.fact.as_dict for _ in doc.spans if _.type == PER}
 
-    # Затем продолжите вашу обработку сообщения и отправку ответа
     answer = bot(replica)
     update.message.reply_text(answer)
 
@@ -281,7 +260,6 @@ def main():
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, run_bot))
-    # Start the Bot
     updater.start_polling()
     updater.idle()
 
