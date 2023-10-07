@@ -1,7 +1,16 @@
+import sys
+sys.path.insert(0, "../csbot/server/")
+from connect import con
+
+with con:
+    data = con.execute("SELECT * FROM district")
+    for row in data:
+        print(row)
+    # row = data.fetchone()
 BOT_CONFIG = {
     "intents": {
         "hello": {
-            "examples": ["Привет", "Добрый день", "Шалом", "Привет, бот"],
+            "examples": ["Привет", "Добрый день", "Привет, бот"],
             "responses": [
                 "Привет, человек!",
                 "И вам здравствуйте :)",
@@ -12,27 +21,9 @@ BOT_CONFIG = {
             "examples": ["Пока", "До свидания", "До свидания", "До скорой встречи"],
             "responses": ["Еще увидимся", "Если что, я всегда тут"],
         },
-        "name": {
-            "examples": ["Как тебя зовут?", "Скажи свое имя", "Представься"],
-            "responses": ["Меня зовут Саша"],
-        },
-        "want_eat": {
-            "examples": ["Хочу есть", "Хочу кушать", "ням-ням"],
-            "responses": ["Вы веган?"],
-            "theme_gen": "eating_q_wegan",
-            "theme_app": ["eating", "*"],
-        },
-        "yes": {
-            "examples": ["да"],
-            "responses": ["капусты или морковки?"],
-            "theme_gen": "eating_q_meal",
-            "theme_app": ["eating_q_wegan"],
-        },
-        "no": {
-            "examples": ["нет"],
-            "responses": ["мясо или творог?"],
-            "theme_gen": "eating_q_meal",
-            "theme_app": ["eating_q_wegan"],
+        "light": {
+            "examples": [f"нет света в {row} районе", f"отсутсвует электричество на улице {row}"],
+            "responses": [f"по информации в {row} отключение электроэнергии до 22"],
         },
     },
     "failure_phrases": [
